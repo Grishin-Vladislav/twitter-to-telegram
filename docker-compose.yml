@@ -1,0 +1,61 @@
+version: '3.9'
+services:
+
+  db:
+    container_name: postgres_db
+    image: postgres:16-alpine
+    user: postgres
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_DB: ${PG_NAME}
+    networks:
+      - twitter-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    container_name: twitter-bot
+    build: .
+    command: python src/bot.py
+    env_file:
+      - .env
+    networks:
+      - twitter-network
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+#  pg_admin:
+#    container_name: pg_admin4
+#    image: dpage/pgadmin4
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+#      PGADMIN_DEFAULT_PASSWORD: ${PG_ADMIN_PASS}
+#    networks:
+#      - twitter-network
+#    volumes:
+#      - pgadmin_data:/var/lib/pgadmin
+#    restart: unless-stopped
+#    ports:
+#      - '8000:80'
+#    depends_on:
+#      db:
+#        condition: service_healthy
+
+volumes:
+  db_data:
+    driver: local
+#  pgadmin_data:
+#    driver: local
+
+networks:
+  twitter-network:
+    driver: bridge
