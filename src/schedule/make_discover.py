@@ -141,12 +141,10 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
             count += 1
             twt = Tweet(**raw_tweet)
             if twt.createdAt >= config.last_discovering_date:
-                print(twt.createdAt)
-                print(config.last_discovering_date)
                 author_username = twt.author.userName
                 count_relevant += 1
                 author_tweets = tweets.get(author_username, [])
-                author_tweets.append(twt)
+                author_tweets.insert(0, twt)
                 tweets[author_username] = author_tweets
 
         await bot.send_message(
