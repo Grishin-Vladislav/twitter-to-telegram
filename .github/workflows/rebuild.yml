@@ -1,0 +1,11 @@
+name: 'rebuild'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
