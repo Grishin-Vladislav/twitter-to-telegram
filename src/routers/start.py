@@ -18,4 +18,10 @@ async def start(message: Message, bot: Bot):
 # TODO: add help
 @router.message(Command("help"))
 async def help(message: Message):
-    await message.answer('help!')
+    help = """
+    Add this bot to your supergroup
+    bot asks you to provide admin rights - you provide it, no jokes
+    if no, manually give it admin rights, it will be already configured
+    with needed permissions
+    """
+    await message.answer('')
