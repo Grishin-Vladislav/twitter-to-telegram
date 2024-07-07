@@ -1,11 +1,18 @@
-name: 'rebuild'
-
-on:
-  push:
-    branches:
-      - main
-
+name: rebuld
+on: [push]
 jobs:
-  rebuild:
+
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: rebuild and restart
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          whoami
+          ls -al
