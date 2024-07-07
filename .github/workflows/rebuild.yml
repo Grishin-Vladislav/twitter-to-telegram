@@ -15,5 +15,5 @@ jobs:
         port: ${{ secrets.PORT }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          whoami
-          ls -al
+          cd twitter-to-telegram
+          ./rebuld.sh
