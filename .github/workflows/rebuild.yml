@@ -16,4 +16,5 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           cd twitter-to-telegram
+          ls -la
           source rebuild.sh
