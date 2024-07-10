@@ -29,7 +29,7 @@ target_metadata = Base.metadata
 
 if DEV_MODE:
     url = LOCAL_DB_URL
-    print(f"============================================{DEV_MODE}{type(DEV_MODE)}")
+    print(f"======================================{DEV_MODE}{type(DEV_MODE)}")
 else:
     url = DB_URL
     print("++++++++++++++++++++++++++++++++++++++++++++++++++")
