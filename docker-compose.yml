@@ -24,6 +24,9 @@ services:
     container_name: twitter-bot
     build: .
     command: python src/bot.py
+    command: >
+      /bin/sh -cx "alembic upgrade head &&
+                  python src/bot.py"
     env_file:
       - .env
     networks:
