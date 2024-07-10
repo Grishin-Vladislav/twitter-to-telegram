@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.config import BOT_TOKEN, DB_URL
-from src.database.models import Base
 from src.routers import start, chat_member, twitter, initialize_group
 from src.schedule.make_discover import start_discovering_schedule
 from src.utils import bot_config

@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine, engine_from_config
-from sqlalchemy import pool
 
 from alembic import context
 from src.config import DB_URL, DEV_MODE, LOCAL_DB_URL
