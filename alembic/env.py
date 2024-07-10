@@ -29,8 +29,10 @@ target_metadata = Base.metadata
 
 if DEV_MODE:
     url = LOCAL_DB_URL
+    print("============================================")
 else:
     url = DB_URL
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 def run_migrations_offline() -> None:
