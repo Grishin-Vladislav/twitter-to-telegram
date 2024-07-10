@@ -24,8 +24,6 @@ async def main() -> None:
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    Base.metadata.create_all(engine)
-
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
 
     await bot_config.base_configure_bot(bot)
