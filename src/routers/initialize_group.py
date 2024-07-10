@@ -14,8 +14,8 @@ router = Router()
 
 @router.message(Command("check_state"))
 async def check_state(message: Message):
-    forum = ' ' if message.chat.is_forum else ' not '
-    topics = 'enabled' if message.chat.is_forum else 'disabled'
+    forum = " " if message.chat.is_forum else " not "
+    topics = "enabled" if message.chat.is_forum else "disabled"
     await message.answer(
         f"chat type is {message.chat.type} and chat is{forum}a forum (has topics {topics})\n\n"
         f"currently admin status can not be checked, but be sure to give bot admin permissions to work properly!\n\n"
@@ -26,10 +26,14 @@ async def check_state(message: Message):
 
 @router.message(Command("init"))
 async def initialize(message: Message, session: Session):
-    config = session.scalars(select(Config).where(Config.main_chat_id == message.chat.id)).first()
+    config = session.scalars(
+        select(Config).where(Config.main_chat_id == message.chat.id)
+    ).first()
 
     if config:
-        await message.answer("Config already exists, please use /set_api_key to set new API key")
+        await message.answer(
+            "Config already exists, please use /set_api_key to set new API key"
+        )
         return
 
     try:
@@ -37,13 +41,15 @@ async def initialize(message: Message, session: Session):
             name="logs", chat_id=message.chat.id
         )
     except:
-        await message.answer("Something went wrong creating logs topic, please check bot permissions")
+        await message.answer(
+            "Something went wrong creating logs topic, please check bot permissions"
+        )
         return
 
     config = Config(
         main_chat_id=message.chat.id,
         log_thread_id=log_topic.message_thread_id,
-        last_discovering_date=datetime.now()
+        last_discovering_date=datetime.now(),
     )
 
     try:
@@ -77,7 +83,7 @@ async def set_api_key(message: Message, command: CommandObject, session: Session
         await message.bot.send_message(
             chat_id=config.main_chat_id,
             message_thread_id=config.log_thread_id,
-            text=f"API key was set for this chat"
+            text=f"API key was set for this chat",
         )
     except NoResultFound:
         await message.answer(
@@ -87,7 +93,5 @@ async def set_api_key(message: Message, command: CommandObject, session: Session
         return
     except Exception as e:
         session.rollback()
-        await message.answer(
-            f"Something went wrong: {e}\n"
-        )
+        await message.answer(f"Something went wrong: {e}\n")
         return

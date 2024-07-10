@@ -11,7 +11,7 @@ async def start(message: Message, bot: Bot):
     await message.answer(
         f"Hello, {message.from_user.full_name}! Invite me to your fresh supergroup using"
         f' <a href="{await create_startgroup_link(bot, "_")}">this link</a>\n\n'
-        f'To check help use /help'
+        f"To check help use /help"
     )
 
 

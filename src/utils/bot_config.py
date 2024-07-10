@@ -18,14 +18,16 @@ async def base_configure_bot(bot: Bot) -> None:
         can_post_messages=True,
         can_edit_messages=True,
         can_pin_messages=True,
-        can_manage_topics=True
+        can_manage_topics=True,
     )
     await bot.set_my_default_administrator_rights(default_rights)
 
     commands = [
         BotCommand(command="start", description="Start the bot"),
         BotCommand(command="check_state", description="check state of group chat"),
-        BotCommand(command="init", description="Bind this bot to your group and your id"),
+        BotCommand(
+            command="init", description="Bind this bot to your group and your id"
+        ),
         BotCommand(command="set_api_key", description="set your API key"),
         BotCommand(command="xadd", description="Add x.com username"),
         BotCommand(command="disc", description="Discover tweets"),

@@ -6,10 +6,10 @@ def configure_variable(var_name, default=None):
 
     if variable is None:
         try:
-            with open('.env', 'r') as f:
+            with open(".env", "r") as f:
                 for line in f.readlines():
                     if line.startswith(var_name):
-                        variable = line[line.find('=')+1:].strip('\n')
+                        variable = line[line.find("=") + 1 :].strip("\n")
         except:
             raise ValueError(f"{var_name} variable is not set")
 

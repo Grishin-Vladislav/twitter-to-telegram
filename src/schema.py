@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 def normalize_date(date: str) -> datetime:
-    return datetime.strptime(date, '%a %b %d %H:%M:%S %z %Y')
+    return datetime.strptime(date, "%a %b %d %H:%M:%S %z %Y")
 
 
 class XUser(BaseModel):
@@ -17,9 +17,9 @@ class QuoteOrRetweet(BaseModel):
     type: str
     author: XUser
     text: str
-    createdAt: datetime = Field(..., serialization_alias='created_at')
+    createdAt: datetime = Field(..., serialization_alias="created_at")
 
-    normalize_date = field_validator('createdAt', mode='before')(normalize_date)
+    normalize_date = field_validator("createdAt", mode="before")(normalize_date)
 
 
 class Retweet(QuoteOrRetweet):
@@ -40,6 +40,6 @@ class Tweet(BaseModel):
     isQuote: bool
     retweet: Retweet = None
     quote: Quote = None
-    createdAt: datetime = Field(..., serialization_alias='created_at')
+    createdAt: datetime = Field(..., serialization_alias="created_at")
 
-    normalize_date = field_validator('createdAt', mode='before')(normalize_date)
+    normalize_date = field_validator("createdAt", mode="before")(normalize_date)

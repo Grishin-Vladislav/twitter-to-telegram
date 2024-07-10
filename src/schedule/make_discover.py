@@ -13,10 +13,15 @@ from src.schema import Tweet
 
 
 async def construct_search_terms(usernames: list[str], date: str) -> list[str]:
-    return [f"from:{username}, since:{date}, include:nativeretweets" for username in usernames]
+    return [
+        f"from:{username}, since:{date}, include:nativeretweets"
+        for username in usernames
+    ]
 
 
-async def send_tweets_by_threads(tweets: dict[str, list[Tweet]], config: Config, bot: Bot):
+async def send_tweets_by_threads(
+    tweets: dict[str, list[Tweet]], config: Config, bot: Bot
+):
     for twitter_object in config.twitter_objects:
         tweets_by_thread = tweets.get(twitter_object.twitter_username, [])
         for tweet in tweets_by_thread:
@@ -26,9 +31,9 @@ async def send_tweets_by_threads(tweets: dict[str, list[Tweet]], config: Config,
                     message_thread_id=twitter_object.thread_id,
                     text=(
                         f"<b>{tweet.createdAt}</b>\n"
-                        f"<b><a href=\"{tweet.url}\">Retweet from {tweet.retweet.author.name}</a></b>\n\n"
+                        f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
                         f"{tweet.retweet.text}\n\n"
-                    )
+                    ),
                 )
             elif tweet.quote:
                 await bot.send_message(
@@ -36,10 +41,10 @@ async def send_tweets_by_threads(tweets: dict[str, list[Tweet]], config: Config,
                     message_thread_id=twitter_object.thread_id,
                     text=(
                         f"<b>{tweet.createdAt}</b>\n"
-                        f"<b><a href=\"{tweet.url}\">Quote on {tweet.quote.author.name}:</a></b>\n"
+                        f'<b><a href="{tweet.url}">Quote on {tweet.quote.author.name}:</a></b>\n'
                         f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
                         f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
-                    )
+                    ),
                 )
             else:
                 await bot.send_message(
@@ -47,9 +52,9 @@ async def send_tweets_by_threads(tweets: dict[str, list[Tweet]], config: Config,
                     message_thread_id=twitter_object.thread_id,
                     text=(
                         f"<b>{tweet.createdAt}</b>\n"
-                        f"<b><a href=\"{tweet.url}\">Tweet from {tweet.author.name}</a></b>\n\n"
+                        f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
                         f"{tweet.text}\n"
-                    )
+                    ),
                 )
 
 
@@ -66,17 +71,17 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
             text=(
                 f"Started discovering tweets for users: \n\n{', '.join(usernames)}\n\n"
                 f"last discovering date: {config.last_discovering_date}"
-            )
+            ),
         )
 
-        last_date_str = datetime.strftime(config.last_discovering_date, '%Y-%m-%d')
+        last_date_str = datetime.strftime(config.last_discovering_date, "%Y-%m-%d")
         apify_key = config.apify_key
         if not apify_key:
             await bot.send_message(
                 chat_id=config.main_chat_id,
                 message_thread_id=config.log_thread_id,
                 text="API key was not provided for this chat, "
-                     "make sure to run /set_api_key to enable tweets discovering"
+                "make sure to run /set_api_key to enable tweets discovering",
             )
             continue
 
@@ -85,7 +90,7 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
                 chat_id=config.main_chat_id,
                 message_thread_id=config.log_thread_id,
                 text="You have not added any twitter users to config, "
-                     "make sure to run /xadd to start watching for tweets"
+                "make sure to run /xadd to start watching for tweets",
             )
             continue
 
@@ -100,7 +105,9 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         }
         print(run_input)
 
-        run = actor.call(run_input=run_input, max_items=1000, memory_mbytes=256, wait_secs=60)
+        run = actor.call(
+            run_input=run_input, max_items=1000, memory_mbytes=256, wait_secs=60
+        )
 
         # ==Run the actor and return run dict instantly==
         # run = actor.start(run_input=run_input, max_items=1000, memory_mbytes=256)
@@ -110,15 +117,17 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         #         for line in log_stream.iter_lines():
         #             print(line)
 
-        log = client.run(run['id']).log().get()
+        log = client.run(run["id"]).log().get()
 
         await bot.send_message(
             chat_id=config.main_chat_id,
             message_thread_id=config.log_thread_id,
-            text=log
+            text=log,
         )
 
-        latest_run = client.runs().list(desc=True, limit=10).items[0]['defaultDatasetId']
+        latest_run = (
+            client.runs().list(desc=True, limit=10).items[0]["defaultDatasetId"]
+        )
 
         # ==how to get run==
         # latest_run = client.runs().list(desc=True, limit=100).items[0]['defaultDatasetId']
@@ -150,7 +159,7 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         await bot.send_message(
             chat_id=config.main_chat_id,
             message_thread_id=config.log_thread_id,
-            text=f'Tweets discovered: {count} | Relevant: {count_relevant}'
+            text=f"Tweets discovered: {count} | Relevant: {count_relevant}",
         )
 
         await send_tweets_by_threads(tweets, config, bot)
@@ -169,7 +178,7 @@ async def start_discovering_schedule(session: Session, bot: Bot):
             day=current_time.day,
             hour=current_time.hour,
             minute=59,
-            second=55
+            second=55,
         )
         await asyncio.sleep((target_time - current_time).seconds)
         await discover_tweets(session, bot)

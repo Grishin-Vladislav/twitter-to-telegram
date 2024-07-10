@@ -7,7 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.config import BOT_TOKEN, DB_URL 
+from src.config import BOT_TOKEN, DB_URL
 from src.database.models import Base
 from src.routers import start, chat_member, twitter, initialize_group
 from src.schedule.make_discover import start_discovering_schedule
@@ -17,10 +17,7 @@ from src.utils import bot_config
 async def main() -> None:
     dp = Dispatcher()
     dp.include_routers(
-        start.router,
-        chat_member.router,
-        initialize_group.router,
-        twitter.router
+        start.router, chat_member.router, initialize_group.router, twitter.router
     )
 
     engine = create_engine(DB_URL, echo=False)

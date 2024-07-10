@@ -8,11 +8,17 @@ from aiogram import F
 router = Router()
 
 
-@router.my_chat_member(F.new_chat_member.status.in_((ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR)))
+@router.my_chat_member(
+    F.new_chat_member.status.in_(
+        (ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR)
+    )
+)
 async def handle_adding_bot_to_group(chat_member: ChatMemberUpdated) -> Any:
-    if chat_member.chat.type != 'supergroup' \
-            or not chat_member.chat.is_forum \
-            or chat_member.new_chat_member.status == ChatMemberStatus.MEMBER:
+    if (
+        chat_member.chat.type != "supergroup"
+        or not chat_member.chat.is_forum
+        or chat_member.new_chat_member.status == ChatMemberStatus.MEMBER
+    ):
         await chat_member.answer(
             f"chat type - <b>{chat_member.chat.type}</b>\n"
             f"chat is a forum (threads enabled) - "
@@ -25,6 +31,6 @@ async def handle_adding_bot_to_group(chat_member: ChatMemberUpdated) -> Any:
         )
     else:
         await chat_member.answer(
-            'Current state of chat is valid, '
-            'please do not disable threads in this forum for bot to work properly'
+            "Current state of chat is valid, "
+            "please do not disable threads in this forum for bot to work properly"
         )
