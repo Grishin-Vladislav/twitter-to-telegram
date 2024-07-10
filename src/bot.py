@@ -7,7 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.config import BOT_TOKEN, PG_NAME, PG_PASS, PG_USER
+from src.config import BOT_TOKEN, DB_URL 
 from src.database.models import Base
 from src.routers import start, chat_member, twitter, initialize_group
 from src.schedule.make_discover import start_discovering_schedule
@@ -23,8 +23,7 @@ async def main() -> None:
         twitter.router
     )
 
-    db_url = f"postgresql+psycopg2://{PG_USER}:{PG_PASS}@postgres_db/{PG_NAME}"
-    engine = create_engine(db_url, echo=False)
+    engine = create_engine(DB_URL, echo=False)
     Session = sessionmaker(bind=engine)
     session = Session()
 

@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+
+  db:
+    container_name: postgres_db
+    image: postgres:16-alpine
+    user: postgres
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_DB: ${PG_NAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - twitter-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  bot:
+    container_name: twitter-bot
+    build: .
+    command: python src/bot.py
+    env_file:
+      - .env
+    networks:
+      - twitter-network
+    restart: unless-stopped
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  twitter-network:
+    driver: bridge
