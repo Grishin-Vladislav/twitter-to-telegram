@@ -2,7 +2,7 @@ from datetime import datetime
 
 from aiogram import Router
 from aiogram.filters import Command, CommandObject
-from aiogram.types import Message, ForumTopic
+from aiogram.types import Message
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -36,21 +36,7 @@ async def initialize(message: Message, session: Session):
         )
         return
 
-    try:
-        log_topic: ForumTopic = await message.bot.create_forum_topic(
-            name="logs", chat_id=message.chat.id
-        )
-    except:
-        await message.answer(
-            "Something went wrong creating logs topic, please check bot permissions"
-        )
-        return
-
-    config = Config(
-        main_chat_id=message.chat.id,
-        log_thread_id=log_topic.message_thread_id,
-        last_discovering_date=datetime.now(),
-    )
+    config = Config(main_chat_id=message.chat.id, last_discovering_date=datetime.now())
 
     try:
         session.add(config)
@@ -79,6 +65,36 @@ async def set_api_key(message: Message, command: CommandObject, session: Session
         query = select(Config).where(Config.main_chat_id == message.chat.id)
         config: Config = session.scalars(query).one()
         config.apify_key = api_key
+        session.commit()
+        if config.log_thread_id:
+            await message.bot.send_message(
+                chat_id=config.main_chat_id,
+                message_thread_id=config.log_thread_id,
+                text=f"API key was set for this chat",
+            )
+        else:
+            await message.bot.send_message(
+                chat_id=config.main_chat_id,
+                text=f"API key was set for this chat",
+            )
+    except NoResultFound:
+        await message.answer(
+            "Config not found for this chat, make sure to run /init first\n"
+            "Or check that you are using this command in desired supergroup"
+        )
+        return
+    except Exception as e:
+        session.rollback()
+        await message.answer(f"Something went wrong: {e}\n")
+        return
+
+
+@router.message(Command("set_log_chat"))
+async def set_log_chat(message: Message, session: Session):
+    try:
+        query = select(Config).where(Config.main_chat_id == message.chat.id)
+        config: Config = session.scalars(query).one()
+        config.log_thread_id = message.message_thread_id
         session.commit()
         await message.bot.send_message(
             chat_id=config.main_chat_id,
