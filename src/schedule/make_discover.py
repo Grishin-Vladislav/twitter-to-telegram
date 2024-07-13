@@ -109,21 +109,14 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
             run_input=run_input, max_items=1000, memory_mbytes=256, wait_secs=60
         )
 
-        # ==Run the actor and return run dict instantly==
-        # run = actor.start(run_input=run_input, max_items=1000, memory_mbytes=256)
-        #
-        # with client.run(run['id']).log().stream() as log_stream:
-        #     if log_stream:
-        #         for line in log_stream.iter_lines():
-        #             print(line)
+        if config.log_thread_id:
+            log = client.run(run["id"]).log().get()
 
-        log = client.run(run["id"]).log().get()
-
-        await bot.send_message(
-            chat_id=config.main_chat_id,
-            message_thread_id=config.log_thread_id,
-            text=log,
-        )
+            await bot.send_message(
+                chat_id=config.main_chat_id,
+                message_thread_id=config.log_thread_id,
+                text=log,
+            )
 
         latest_run = (
             client.runs().list(desc=True, limit=10).items[0]["defaultDatasetId"]

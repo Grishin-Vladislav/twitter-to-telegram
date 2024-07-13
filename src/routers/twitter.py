@@ -52,21 +52,15 @@ async def resolve_add_x(callback_query: CallbackQuery, session: Session):
                 select(Config).where(Config.main_chat_id == message.chat.id)
             ).one()
 
-            topic: ForumTopic = await bot.create_forum_topic(
-                name=f"{username}", chat_id=message.chat.id
-            )
+            target_thread_id = message.message_thread_id
 
             config.twitter_objects.append(
-                TwitterObject(
-                    twitter_username=username, thread_id=topic.message_thread_id
-                )
+                TwitterObject(twitter_username=username, thread_id=target_thread_id)
             )
             session.add(config)
             session.commit()
 
-            await bot.send_message(
-                chat_id=message.chat.id,
-                message_thread_id=topic.message_thread_id,
+            await message.reply(
                 text=f"{username} added",
             )
 
