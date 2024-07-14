@@ -24,7 +24,7 @@ class Config(Base):
     )
 
 
-class TwitterObject(Base):  # add unique together (thread_id, twitter_username)
+class TwitterObject(Base):
     __tablename__ = "twitter_object"
     id: Mapped[int] = mapped_column(primary_key=True)
     thread_id: Mapped[int] = mapped_column(BigInteger)

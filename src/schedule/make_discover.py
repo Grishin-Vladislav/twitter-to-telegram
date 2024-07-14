@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 from datetime import datetime
 
@@ -25,6 +26,7 @@ async def send_tweets_by_threads(
     for twitter_object in config.twitter_objects:
         tweets_by_thread = tweets.get(twitter_object.twitter_username, [])
         for tweet in tweets_by_thread:
+            time.sleep(0.3)
             if tweet.retweet:
                 await bot.send_message(
                     chat_id=config.main_chat_id,
@@ -60,6 +62,7 @@ async def send_tweets_by_threads(
 
 # TODO: make discovering more efficient with async
 async def discover_tweets(session: Session, bot: Bot) -> None:
+    # here i need to select all twitter_objects per api_key
     stmt = select(Config)
     configs = session.scalars(stmt).all()
 
