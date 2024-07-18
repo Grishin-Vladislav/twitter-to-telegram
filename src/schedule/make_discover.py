@@ -36,6 +36,7 @@ async def send_tweets_by_threads(
                         f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
                         f"{tweet.retweet.text}\n\n"
                     ),
+                    disable_web_page_preview=True
                 )
             elif tweet.quote:
                 await bot.send_message(
@@ -47,6 +48,7 @@ async def send_tweets_by_threads(
                         f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
                         f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
                     ),
+                    disable_web_page_preview=True
                 )
             else:
                 await bot.send_message(
@@ -57,6 +59,7 @@ async def send_tweets_by_threads(
                         f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
                         f"{tweet.text}\n"
                     ),
+                    disable_web_page_preview=True
                 )
 
 
@@ -68,14 +71,15 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
 
     for config in configs:
         usernames = [user.twitter_username for user in config.twitter_objects]
-        await bot.send_message(
-            chat_id=config.main_chat_id,
-            message_thread_id=config.log_thread_id,
-            text=(
-                f"Started discovering tweets for users: \n\n{', '.join(usernames)}\n\n"
-                f"last discovering date: {config.last_discovering_date}"
-            ),
-        )
+        if config.log_thread_id:
+            await bot.send_message(
+                chat_id=config.main_chat_id,
+                message_thread_id=config.log_thread_id,
+                text=(
+                    f"Started discovering tweets for users: \n\n{', '.join(usernames)}\n\n"
+                    f"last discovering date: {config.last_discovering_date}"
+                ),
+            )
 
         last_date_str = datetime.strftime(config.last_discovering_date, "%Y-%m-%d")
         apify_key = config.apify_key
@@ -152,11 +156,12 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
                 author_tweets.insert(0, twt)
                 tweets[author_username] = author_tweets
 
-        await bot.send_message(
-            chat_id=config.main_chat_id,
-            message_thread_id=config.log_thread_id,
-            text=f"Tweets discovered: {count} | Relevant: {count_relevant}",
-        )
+        if config.log_thread_id:
+            await bot.send_message(
+                chat_id=config.main_chat_id,
+                message_thread_id=config.log_thread_id,
+                text=f"Tweets discovered: {count} | Relevant: {count_relevant}",
+            )
 
         await send_tweets_by_threads(tweets, config, bot)
 
