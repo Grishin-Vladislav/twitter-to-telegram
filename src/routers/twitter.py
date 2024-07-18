@@ -100,7 +100,7 @@ async def list_users(message: Message, session: Session):
                 select(Config).where(Config.main_chat_id == message.chat.id)
             ).one()
 
-        usernames = '\n'.join(tuple(config.twitter_objects))
+        usernames = '\n'.join((str(username) for username in config.twitter_objects))
         await message.answer(usernames)
 
     else:
