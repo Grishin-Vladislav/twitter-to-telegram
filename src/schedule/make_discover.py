@@ -36,7 +36,7 @@ async def send_tweets_by_threads(
                         f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
                         f"{tweet.retweet.text}\n\n"
                     ),
-                    disable_web_page_preview=True
+                    disable_web_page_preview=True,
                 )
             elif tweet.quote:
                 await bot.send_message(
@@ -48,7 +48,7 @@ async def send_tweets_by_threads(
                         f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
                         f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
                     ),
-                    disable_web_page_preview=True
+                    disable_web_page_preview=True,
                 )
             else:
                 await bot.send_message(
@@ -59,7 +59,7 @@ async def send_tweets_by_threads(
                         f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
                         f"{tweet.text}\n"
                     ),
-                    disable_web_page_preview=True
+                    disable_web_page_preview=True,
                 )
 
 
