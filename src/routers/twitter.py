@@ -91,3 +91,17 @@ async def resolve_add_x(callback_query: CallbackQuery, session: Session):
 @router.message(Command("disc"))
 async def list_x(message: Message, session: Session, bot: Bot):
     await discover_tweets(session, bot)
+
+
+@router.message(Command("xlist"))
+async def list_users(message: Message, session: Session):
+    if not message.message_thread_id:
+        config = session.scalars(
+                select(Config).where(Config.main_chat_id == message.chat.id)
+            ).one()
+
+        usernames = '\n'.join(tuple(config.twitter_objects))
+        await message.answer(usernames)
+
+    else:
+        pass

@@ -23,6 +23,9 @@ class Config(Base):
         "TwitterObject", back_populates="config"
     )
 
+    def __repr__(self) -> str:
+        return str(self.main_chat_id)
+
 
 class TwitterObject(Base):
     __tablename__ = "twitter_object"
@@ -36,3 +39,6 @@ class TwitterObject(Base):
     __table_args__ = (
         UniqueConstraint("thread_id", "twitter_username", name="thread_username"),
     )
+
+    def __repr__(self) -> str:
+        return self.twitter_username

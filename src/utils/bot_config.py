@@ -29,8 +29,9 @@ async def base_configure_bot(bot: Bot) -> None:
             command="init", description="Bind this bot to your group and your id"
         ),
         BotCommand(command="set_api_key", description="set your API key"),
-        BotCommand(command="set_log_chat", description="enable logging"),
+        BotCommand(command="set_log_chat", description="enable logging or change log chat"),
         BotCommand(command="xadd", description="Add x.com username"),
+        BotCommand(command="xlist", description="list binded xusers"),
         BotCommand(command="disc", description="Discover tweets"),
         BotCommand(command="help", description="Get help"),
     ]
