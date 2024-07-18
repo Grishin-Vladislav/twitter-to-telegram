@@ -104,4 +104,9 @@ async def list_users(message: Message, session: Session):
         await message.answer(usernames)
 
     else:
-        pass
+        stmt = select(TwitterObject) \
+            .where(TwitterObject.thread_id == message.message_thread_id)
+
+        users = session.scalars(stmt).all()
+        usernames = '\n'.join((str(user) for user in users))
+        await message.answer(usernames)
