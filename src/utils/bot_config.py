@@ -32,6 +32,7 @@ async def base_configure_bot(bot: Bot) -> None:
         BotCommand(command="set_log_chat", description="enable logging or change log chat"),
         BotCommand(command="xadd", description="Add x.com username"),
         BotCommand(command="xlist", description="list binded xusers"),
+        BotCommand(command="xdel", description="delete binded xusers"),
         BotCommand(command="disc", description="Discover tweets"),
         BotCommand(command="help", description="Get help"),
     ]

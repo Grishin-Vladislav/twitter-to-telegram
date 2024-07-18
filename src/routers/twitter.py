@@ -100,7 +100,14 @@ async def list_users(message: Message, session: Session):
                 select(Config).where(Config.main_chat_id == message.chat.id)
             ).one()
 
-        usernames = '\n'.join((str(username) for username in config.twitter_objects))
+        usernames \
+            = '\n'.join((f'{idx}. <b>{str(username)}</b>' 
+                for idx, username in enumerate(config.twitter_objects)))
+
+        if not usernames:
+            await message.answer("you don't have any listed xusers")
+            return
+
         await message.answer(usernames)
 
     else:
@@ -108,5 +115,28 @@ async def list_users(message: Message, session: Session):
             .where(TwitterObject.thread_id == message.message_thread_id)
 
         users = session.scalars(stmt).all()
-        usernames = '\n'.join((str(user) for user in users))
+        usernames = '\n'.join((f'{idx}. <b>{str(user)}</b>' for idx, user in enumerate(users)))
+        if not usernames:
+            await message.answer("you don't have any listed xusers in this thread")
+            return
+
         await message.answer(usernames)
+
+# TODO: make me
+@router.message(Command("xdel"))
+async def remove_users(message: Message, session: Session, command: CommandObject):
+    if not command.args:
+        await message.answer(
+            'you need to select one or more numbers, divided by space. '
+            'for example, "/xdel 0 4 2 5". to show list use /xlist'
+            )
+        return
+
+    user_input = command.args.split()
+    
+    for el in user_input:
+        if not el.isdigit() or len(el) not in (1, 2):
+            await message.answer('you shall not pass')
+            return
+
+    nums = [int(num) for num in user_input]

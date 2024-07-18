@@ -20,7 +20,8 @@ class Config(Base):
     log_thread_id: Mapped[Optional[int]] = mapped_column(BigInteger)
     last_discovering_date: Mapped[int] = mapped_column(DateTime(timezone=True))
     twitter_objects: Mapped[List["TwitterObject"]] = relationship(
-        "TwitterObject", back_populates="config"
+        "TwitterObject", back_populates="config",
+        order_by="TwitterObject.id"
     )
 
     def __repr__(self) -> str:
