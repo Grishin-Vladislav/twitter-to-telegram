@@ -1,9 +1,11 @@
 import asyncio
+from threading import main_thread
 import time
 
 from datetime import datetime
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramRetryAfter
 from apify_client import ApifyClient
 from apify_client.clients import ActorClient
 from sqlalchemy import select
@@ -19,6 +21,42 @@ async def construct_search_terms(usernames: list[str], date: str) -> list[str]:
         for username in usernames
     ]
 
+async def send_tweet(bot, main_chat_id, thread_id, tweet):
+    if tweet.retweet:
+        await bot.send_message(
+            chat_id=main_chat_id,
+            message_thread_id=thread_id,
+            text=(
+                f"<b>{tweet.createdAt}</b>\n"
+                f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
+                f"{tweet.retweet.text}\n\n"
+            ),
+            disable_web_page_preview=True,
+        )
+    elif tweet.quote:
+        await bot.send_message(
+            chat_id=main_chat_id,
+            message_thread_id=thread_id,
+            text=(
+                f"<b>{tweet.createdAt}</b>\n"
+                f'<b><a href="{tweet.url}">Quote on {tweet.quote.author.name}:</a></b>\n'
+                f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
+                f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
+            ),
+            disable_web_page_preview=True,
+        )
+    else:
+        await bot.send_message(
+            chat_id=main_chat_id,
+            message_thread_id=thread_id,
+            text=(
+                f"<b>{tweet.createdAt}</b>\n"
+                f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
+                f"{tweet.text}\n"
+            ),
+            disable_web_page_preview=True,
+        )
+
 
 async def send_tweets_by_threads(
     tweets: dict[str, list[Tweet]], config: Config, bot: Bot
@@ -26,44 +64,20 @@ async def send_tweets_by_threads(
     for idx, twitter_object in enumerate(config.twitter_objects, start=1):
         if idx % 20 == 0:
             await asyncio.sleep(61)
-            
+
         tweets_by_thread = tweets.get(twitter_object.twitter_username, [])
         for tweet in tweets_by_thread:
-            time.sleep(1)
-            if tweet.retweet:
-                await bot.send_message(
-                    chat_id=config.main_chat_id,
-                    message_thread_id=twitter_object.thread_id,
-                    text=(
-                        f"<b>{tweet.createdAt}</b>\n"
-                        f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
-                        f"{tweet.retweet.text}\n\n"
-                    ),
-                    disable_web_page_preview=True,
-                )
-            elif tweet.quote:
-                await bot.send_message(
-                    chat_id=config.main_chat_id,
-                    message_thread_id=twitter_object.thread_id,
-                    text=(
-                        f"<b>{tweet.createdAt}</b>\n"
-                        f'<b><a href="{tweet.url}">Quote on {tweet.quote.author.name}:</a></b>\n'
-                        f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
-                        f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
-                    ),
-                    disable_web_page_preview=True,
-                )
-            else:
-                await bot.send_message(
-                    chat_id=config.main_chat_id,
-                    message_thread_id=twitter_object.thread_id,
-                    text=(
-                        f"<b>{tweet.createdAt}</b>\n"
-                        f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
-                        f"{tweet.text}\n"
-                    ),
-                    disable_web_page_preview=True,
-                )
+            await asyncio.sleep(1.2)
+
+            main_chat_id = config.main_chat_id
+            thread_id = twitter_object.thread_id
+
+            try:
+                await send_tweet(bot, main_chat_id, thread_id, tweet)
+            except TelegramRetryAfter as e:
+                await asyncio.sleep(e.retry_after)
+                await send_tweet(bot, main_chat_id, thread_id, tweet)
+
 
 
 # TODO: make discovering more efficient with async
