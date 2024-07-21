@@ -23,10 +23,13 @@ async def construct_search_terms(usernames: list[str], date: str) -> list[str]:
 async def send_tweets_by_threads(
     tweets: dict[str, list[Tweet]], config: Config, bot: Bot
 ):
-    for twitter_object in config.twitter_objects:
+    for idx, twitter_object in enumerate(config.twitter_objects, start=1):
+        if idx % 20 == 0:
+            await asyncio.sleep(61)
+            
         tweets_by_thread = tweets.get(twitter_object.twitter_username, [])
         for tweet in tweets_by_thread:
-            time.sleep(0.3)
+            time.sleep(1)
             if tweet.retweet:
                 await bot.send_message(
                     chat_id=config.main_chat_id,
