@@ -42,12 +42,13 @@ async def add_x(message: Message, command: CommandObject):
 async def resolve_add_x(callback_query: CallbackQuery, session: Session):
     message: Message = callback_query.message
     bot: Bot = message.bot
-    
+
     if not message.message_thread_id:
         await bot.send_message(
             chat_id=message.chat.id,
             text="you can't add users in general thread" 
             )
+        return
 
     _, username, user_answer = callback_query.data.split(":")
     await callback_query.answer()
