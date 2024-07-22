@@ -129,7 +129,6 @@ async def list_users(message: Message, session: Session):
         await message.answer(usernames)
 
 
-# TODO: make me
 @router.message(Command("xdel"))
 async def remove_users(message: Message, session: Session, command: CommandObject):
     if not command.args:
@@ -154,43 +153,29 @@ async def remove_users(message: Message, session: Session, command: CommandObjec
         ).one()
 
         users = config.twitter_objects
-        ids_to_remove = []
-        for num in user_selected_nums:
-            try:
-                user_id = users[num].id
-                ids_to_remove.append(user_id)
-            except KeyError:
-                continue
-        
-        if ids_to_remove:
-            session.query(TwitterObject) \
-                .where(TwitterObject.id.in_(ids_to_remove)).delete()
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            await message.answer('something went wrong')
-
 
     else:
         stmt = select(TwitterObject).where(
             TwitterObject.thread_id == message.message_thread_id
         )
         users = session.scalars(stmt).all()
-        
-        ids_to_remove = []
-        for num in user_selected_nums:
-            try:
-                user_id = users[num].id
-                ids_to_remove.append(user_id)
-            except KeyError:
-                continue
-        
-        if ids_to_remove:
-            session.query(TwitterObject) \
-                .where(TwitterObject.id.in_(ids_to_remove)).delete()
+
+
+    ids_to_remove = []
+    for num in user_selected_nums:
         try:
-            session.commit()
-        except:
-            session.rollback()
-            await message.answer('something went wrong')
+            user_id = users[num].id
+            ids_to_remove.append(user_id)
+        except KeyError:
+            continue
+    
+    if ids_to_remove:
+        session.query(TwitterObject) \
+            .where(TwitterObject.id.in_(ids_to_remove)).delete()
+    try:
+        session.commit()
+    except:
+        session.rollback()
+        await message.answer('something went wrong')
+
+    await message.answer('Done!')
