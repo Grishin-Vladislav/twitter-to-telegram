@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandObject
-from aiogram.types import Message, ForumTopic, CallbackQuery
+from aiogram.types import Message, ForumTopic, CallbackQuery, user
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -146,4 +146,51 @@ async def remove_users(message: Message, session: Session, command: CommandObjec
             await message.answer("you shall not pass")
             return
 
-    nums = [int(num) for num in user_input]
+    user_selected_nums = [int(num) for num in user_input]
+
+    if not message.message_thread_id:
+        config = session.scalars(
+            select(Config).where(Config.main_chat_id == message.chat.id)
+        ).one()
+
+        users = config.twitter_objects
+        ids_to_remove = []
+        for num in user_selected_nums:
+            try:
+                user_id = users[num].id
+                ids_to_remove.append(user_id)
+            except KeyError:
+                continue
+        
+        if ids_to_remove:
+            session.query(TwitterObject) \
+                .where(TwitterObject.id.in_(ids_to_remove)).delete()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            await message.answer('something went wrong')
+
+
+    else:
+        stmt = select(TwitterObject).where(
+            TwitterObject.thread_id == message.message_thread_id
+        )
+        users = session.scalars(stmt).all()
+        
+        ids_to_remove = []
+        for num in user_selected_nums:
+            try:
+                user_id = users[num].id
+                ids_to_remove.append(user_id)
+            except KeyError:
+                continue
+        
+        if ids_to_remove:
+            session.query(TwitterObject) \
+                .where(TwitterObject.id.in_(ids_to_remove)).delete()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            await message.answer('something went wrong')
