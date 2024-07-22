@@ -42,6 +42,13 @@ async def add_x(message: Message, command: CommandObject):
 async def resolve_add_x(callback_query: CallbackQuery, session: Session):
     message: Message = callback_query.message
     bot: Bot = message.bot
+    
+    if not message.message_thread_id:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="you can't add users in general thread" 
+            )
+
     _, username, user_answer = callback_query.data.split(":")
     await callback_query.answer()
     await message.edit_reply_markup(reply_markup=None)
@@ -67,20 +74,20 @@ async def resolve_add_x(callback_query: CallbackQuery, session: Session):
         except TelegramBadRequest as e:
             print(e)
             await bot.send_message(
-                chat_id=callback_query.message.chat.id,
+                chat_id=message.chat.id,
                 text="something went wrong trying to create new topic (check bot permissions)",
             )
 
         except NoResultFound:
             await bot.send_message(
-                chat_id=callback_query.message.chat.id,
+                chat_id=message.chat.id,
                 text="config not found for this chat, make sure to run /init first",
             )
 
         except Exception as e:
             session.rollback()
             await bot.send_message(
-                chat_id=callback_query.message.chat.id,
+                chat_id=message.chat.id,
                 text=f"something went wrong: {e}",
             )
 
