@@ -169,12 +169,9 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
 
             if raw_tweet.get('noResults'):
                 print("+++++NO RESULTS+++++")
-
-            try:
-                twt = Tweet(**raw_tweet)
-            except ValidationError as exc:
-                print(raw_tweet)
                 continue
+
+            twt = Tweet(**raw_tweet)
 
             if twt.createdAt >= config.last_discovering_date:
                 author_username = twt.author.userName
