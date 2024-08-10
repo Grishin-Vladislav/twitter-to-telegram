@@ -167,6 +167,9 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         for raw_tweet in dataset_iterator:
             count += 1
 
+            if raw_tweet.get('noResults'):
+                print("+++++NO RESULTS+++++")
+
             try:
                 twt = Tweet(**raw_tweet)
             except ValidationError as exc:
