@@ -166,7 +166,6 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         count_relevant = 0
         for raw_tweet in dataset_iterator:
             count += 1
-            twt = Tweet(**raw_tweet)
 
             try:
                 twt = Tweet(**raw_tweet)
