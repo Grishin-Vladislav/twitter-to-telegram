@@ -10,6 +10,7 @@ from apify_client import ApifyClient
 from apify_client.clients import ActorClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from pydantic import ValidationError
 
 from src.database.models import Config
 from src.schema import Tweet
@@ -166,6 +167,13 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         for raw_tweet in dataset_iterator:
             count += 1
             twt = Tweet(**raw_tweet)
+
+            try:
+                twt = Tweet(**raw_tweet)
+            except ValidationError as exc:
+                print(raw_tweet)
+                continue
+
             if twt.createdAt >= config.last_discovering_date:
                 author_username = twt.author.userName
                 count_relevant += 1
