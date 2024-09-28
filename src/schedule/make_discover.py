@@ -1,16 +1,13 @@
 import asyncio
-from threading import main_thread
-import time
 
 from datetime import datetime
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramRetryAfter
+from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest
 from apify_client import ApifyClient
 from apify_client.clients import ActorClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from pydantic import ValidationError
 
 from src.database.models import Config
 from src.schema import Tweet
@@ -28,8 +25,8 @@ async def send_tweet(bot, main_chat_id, thread_id, tweet):
             chat_id=main_chat_id,
             message_thread_id=thread_id,
             text=(
-                f"<b>{tweet.createdAt}</b>\n"
-                f'<b><a href="{tweet.url}">Retweet from {tweet.retweet.author.name}</a></b>\n\n'
+                f"<b> {tweet.createdAt} </b>\n"
+                f'<b> <a href="{tweet.url}"> Retweet from {tweet.retweet.author.name} </a> </b>\n\n'
                 f"{tweet.retweet.text}\n\n"
             ),
             disable_web_page_preview=True,
@@ -39,10 +36,10 @@ async def send_tweet(bot, main_chat_id, thread_id, tweet):
             chat_id=main_chat_id,
             message_thread_id=thread_id,
             text=(
-                f"<b>{tweet.createdAt}</b>\n"
-                f'<b><a href="{tweet.url}">Quote on {tweet.quote.author.name}:</a></b>\n'
-                f"<blockquote>{tweet.quote.text}</blockquote>\n\n"
-                f"<b>{tweet.author.name}</b>: {tweet.text}\n\n"
+                f"<b> {tweet.createdAt} </b>\n"
+                f'<b><a href="{tweet.url}"> Quote on {tweet.quote.author.name}: </a></b>\n'
+                f"<blockquote> {tweet.quote.text} </blockquote>\n\n"
+                f"<b> {tweet.author.name} </b>: {tweet.text}\n\n"
             ),
             disable_web_page_preview=True,
         )
@@ -51,8 +48,8 @@ async def send_tweet(bot, main_chat_id, thread_id, tweet):
             chat_id=main_chat_id,
             message_thread_id=thread_id,
             text=(
-                f"<b>{tweet.createdAt}</b>\n"
-                f'<b><a href="{tweet.url}">Tweet from {tweet.author.name}</a></b>\n\n'
+                f"<b> {tweet.createdAt} </b>\n"
+                f'<b><a href="{tweet.url}"> Tweet from {tweet.author.name} </a></b>\n\n'
                 f"{tweet.text}\n"
             ),
             disable_web_page_preview=True,
@@ -78,6 +75,10 @@ async def send_tweets_by_threads(
             except TelegramRetryAfter as e:
                 await asyncio.sleep(e.retry_after)
                 await send_tweet(bot, main_chat_id, thread_id, tweet)
+            except TelegramBadRequest as e:
+                print(f'bad request happened: {e}')
+                print(f'TWEET:\n\n\n{tweet.text}\n\n\n')
+                continue
 
 
 
