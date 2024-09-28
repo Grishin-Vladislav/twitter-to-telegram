@@ -45,9 +45,8 @@ async def resolve_add_x(callback_query: CallbackQuery, session: Session):
 
     if not message.message_thread_id:
         await bot.send_message(
-            chat_id=message.chat.id,
-            text="you can't add users in general thread" 
-            )
+            chat_id=message.chat.id, text="you can't add users in general thread"
+        )
         return
 
     _, username, user_answer = callback_query.data.split(":")
@@ -168,7 +167,6 @@ async def remove_users(message: Message, session: Session, command: CommandObjec
         )
         users = session.scalars(stmt).all()
 
-
     ids_to_remove = []
     for num in user_selected_nums:
         try:
@@ -176,14 +174,13 @@ async def remove_users(message: Message, session: Session, command: CommandObjec
             ids_to_remove.append(user_id)
         except KeyError:
             continue
-    
+
     if ids_to_remove:
-        session.query(TwitterObject) \
-            .where(TwitterObject.id.in_(ids_to_remove)).delete()
+        session.query(TwitterObject).where(TwitterObject.id.in_(ids_to_remove)).delete()
     try:
         session.commit()
     except:
         session.rollback()
-        await message.answer('something went wrong')
+        await message.answer("something went wrong")
 
-    await message.answer('Done!')
+    await message.answer("Done!")

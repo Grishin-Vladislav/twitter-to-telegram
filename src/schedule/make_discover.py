@@ -19,6 +19,7 @@ async def construct_search_terms(usernames: list[str], date: str) -> list[str]:
         for username in usernames
     ]
 
+
 async def send_tweet(bot, main_chat_id, thread_id, tweet):
     if tweet.retweet:
         await bot.send_message(
@@ -76,10 +77,9 @@ async def send_tweets_by_threads(
                 await asyncio.sleep(e.retry_after)
                 await send_tweet(bot, main_chat_id, thread_id, tweet)
             except TelegramBadRequest as e:
-                print(f'bad request happened: {e}')
-                print(f'TWEET:\n\n\n{tweet.text}\n\n\n')
+                print(f"bad request happened: {e}")
+                print(f"TWEET:\n\n\n{tweet.text}\n\n\n")
                 continue
-
 
 
 # TODO: make discovering more efficient with async
@@ -168,7 +168,7 @@ async def discover_tweets(session: Session, bot: Bot) -> None:
         for raw_tweet in dataset_iterator:
             count += 1
 
-            if raw_tweet.get('noResults'):
+            if raw_tweet.get("noResults"):
                 print("+++++NO RESULTS+++++")
                 continue
 
