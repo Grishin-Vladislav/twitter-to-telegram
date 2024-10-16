@@ -20,41 +20,80 @@ async def construct_search_terms(usernames: list[str], date: str) -> list[str]:
     ]
 
 
-async def send_tweet(bot, main_chat_id, thread_id, tweet):
-    if tweet.retweet:
-        await bot.send_message(
-            chat_id=main_chat_id,
-            message_thread_id=thread_id,
-            text=(
-                f"<b> {tweet.createdAt} </b>\n"
-                f'<b> <a href="{tweet.url}"> Retweet from {tweet.retweet.author.name} </a> </b>\n\n'
-                f"{tweet.retweet.text}\n\n"
-            ),
-            disable_web_page_preview=True,
-        )
-    elif tweet.quote:
-        await bot.send_message(
-            chat_id=main_chat_id,
-            message_thread_id=thread_id,
-            text=(
-                f"<b> {tweet.createdAt} </b>\n"
-                f'<b><a href="{tweet.url}"> Quote on {tweet.quote.author.name}: </a></b>\n'
-                f"<blockquote> {tweet.quote.text} </blockquote>\n\n"
-                f"<b> {tweet.author.name} </b>: {tweet.text}\n\n"
-            ),
-            disable_web_page_preview=True,
-        )
+async def send_tweet(bot: Bot, main_chat_id, thread_id, tweet, parse=True):
+    if not parse:
+        if tweet.retweet:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b> <a href="{tweet.url}"> Retweet from {tweet.retweet.author.name} </a> </b>\n\n'
+                    f"{tweet.retweet.text}\n\n"
+                ),
+                disable_web_page_preview=True,
+                parse_mode=None
+            )
+        elif tweet.quote:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b><a href="{tweet.url}"> Quote on {tweet.quote.author.name}: </a></b>\n'
+                    f"<blockquote> {tweet.quote.text} </blockquote>\n\n"
+                    f"<b> {tweet.author.name} </b>: {tweet.text}\n\n"
+                ),
+                disable_web_page_preview=True,
+                parse_mode=None
+            )
+        else:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b><a href="{tweet.url}"> Tweet from {tweet.author.name} </a></b>\n\n'
+                    f"{tweet.text}\n"
+                ),
+                disable_web_page_preview=True,
+                parse_mode=None
+            )
     else:
-        await bot.send_message(
-            chat_id=main_chat_id,
-            message_thread_id=thread_id,
-            text=(
-                f"<b> {tweet.createdAt} </b>\n"
-                f'<b><a href="{tweet.url}"> Tweet from {tweet.author.name} </a></b>\n\n'
-                f"{tweet.text}\n"
-            ),
-            disable_web_page_preview=True,
-        )
+        if tweet.retweet:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b> <a href="{tweet.url}"> Retweet from {tweet.retweet.author.name} </a> </b>\n\n'
+                    f"{tweet.retweet.text}\n\n"
+                ),
+                disable_web_page_preview=True
+            )
+        elif tweet.quote:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b><a href="{tweet.url}"> Quote on {tweet.quote.author.name}: </a></b>\n'
+                    f"<blockquote> {tweet.quote.text} </blockquote>\n\n"
+                    f"<b> {tweet.author.name} </b>: {tweet.text}\n\n"
+                ),
+                disable_web_page_preview=True
+            )
+        else:
+            await bot.send_message(
+                chat_id=main_chat_id,
+                message_thread_id=thread_id,
+                text=(
+                    f"<b> {tweet.createdAt} </b>\n"
+                    f'<b><a href="{tweet.url}"> Tweet from {tweet.author.name} </a></b>\n\n'
+                    f"{tweet.text}\n"
+                ),
+                disable_web_page_preview=True
+            )
 
 
 async def send_tweets_by_threads(
@@ -79,6 +118,7 @@ async def send_tweets_by_threads(
             except TelegramBadRequest as e:
                 print(f"bad request happened: {e}")
                 print(f"TWEET:\n\n\n{tweet.text}\n\n\n")
+                await send_tweet(bot, main_chat_id, thread_id, tweet, False)
                 continue
 
 
