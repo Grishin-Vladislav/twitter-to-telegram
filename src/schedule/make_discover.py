@@ -122,6 +122,7 @@ async def send_tweets_by_threads(
                 for twt in split_tweet(tweet):
                     await send_tweet(bot, main_chat_id, thread_id, twt, False)
                     await asyncio.sleep(4)
+                    continue
 
 
                 print(f"bad request happened: {e}")
