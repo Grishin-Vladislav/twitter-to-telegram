@@ -1,4 +1,5 @@
 import asyncio
+import textwrap
 
 from datetime import datetime
 
@@ -118,26 +119,16 @@ async def send_tweets_by_threads(
             except TelegramBadRequest as e:
                 if 'too long' in e.message:
                     print('=============too long============')
-
-                for twt in split_tweet(tweet):
-                    await send_tweet(bot, main_chat_id, thread_id, twt, False)
-                    await asyncio.sleep(4)
+                    new_text = textwrap.shorten(tweet.text, width=1500, placeholder="[...]")
+                    print(tweet.text)
+                    tweet.text = new_text
+                    await send_tweet(bot, main_chat_id, thread_id, tweet, False)
                     continue
-
 
                 print(f"bad request happened: {e}")
                 print(f"TWEET:\n\n\n{tweet.text}\n\n\n")
                 await send_tweet(bot, main_chat_id, thread_id, tweet, False)
                 continue
-
-def split_tweet(tweet: Tweet) -> list[Tweet]:
-    message = tweet.text
-
-    tweet_copy = tweet.model_copy(deep=True)
-
-    tweet.text = message[:len(message)//2] 
-    tweet_copy.text = message[len(message)//2:]
-    return [tweet, tweet_copy]
 
 # TODO: make discovering more efficient with async
 async def discover_tweets(session: Session, bot: Bot) -> None:
