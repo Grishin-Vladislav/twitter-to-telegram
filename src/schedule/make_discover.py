@@ -119,15 +119,16 @@ async def send_tweets_by_threads(
             except TelegramBadRequest as e:
                 if 'too long' in e.message:
                     print('=============too long============')
-                    new_text = textwrap.shorten(tweet.text, width=1000, placeholder="[...]")
-                    new_retweet = textwrap.shorten(tweet.retweet.text, width=2000, placeholder="[...]")
-                    new_quote = textwrap.shorten(tweet.quote.text, width=1000, placeholder="[...]")
-                    print(tweet.text)
-                    print(tweet.retweet.text)
-                    print(tweet.quote.text)
-                    tweet.text = new_text
-                    tweet.retweet.text = new_retweet
-                    tweet.quote.text = new_quote
+                    if tweet.text:
+                        new_text = textwrap.shorten(tweet.text, width=1000, placeholder="[...]")
+                        tweet.text = new_text
+                    if tweet.retweet:
+                        new_retweet = textwrap.shorten(tweet.retweet.text, width=2000, placeholder="[...]")
+                        tweet.retweet.text = new_retweet
+                    if tweet.quote:
+                        new_quote = textwrap.shorten(tweet.quote.text, width=1000, placeholder="[...]")
+                        tweet.quote.text = new_quote
+                        
                     await send_tweet(bot, main_chat_id, thread_id, tweet, False)
                     print('=============too long============')
                     continue
